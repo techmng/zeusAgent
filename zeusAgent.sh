@@ -60,9 +60,11 @@ esac
   td-agent-gem install fluent-plugin-secure-forward
 
   # Collectd Packages
-  yes | sudo add-apt-repository ppa:rullmann/collectd
-  apt-get update
+  if [ "$ubuntu_dist" != "xenial" ]; then 
+    yes | sudo add-apt-repository ppa:rullmann/collectd
+  fi
   apt-get install -y collectd
+  apt-get update
 }
 
 configure_agent(){
