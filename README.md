@@ -7,4 +7,4 @@ The script has been tested with following Distributions
 
 $``` cd zeus-agent-scripts```
 
-$```./zeusAgent <ZEUS_USERNAME> <ZEUS_TOKEN> <INGESTION_DOMAIN>```
+$```sudo ./zeusAgent <ZEUS_USERNAME> <ZEUS_TOKEN> <INGESTION_DOMAIN>```
