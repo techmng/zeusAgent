@@ -26,13 +26,13 @@ download_configs(){
 
 install_packages() {
   if command_exists lsb_release; then
-  	ubuntu_dist="$(lsb_release --codename | cut -f2)"
-  else
-    echo "lsb_release missing"
-    exit 1
-  fi
-  
-  case "$ubuntu_dist" in 
+  	os_dist="$(lsb_release --codename | cut -f2)"
+  else 
+       yum provides */lsb_release
+       yum install -y redhat-lsb-core
+       os_dist="$(lsb_release --id | cut -f2)"
+  fi  
+  case "$os_dist" in 
         xenial)
 	curl -L http://toolbelt.treasuredata.com/sh/install-ubuntu-xenial-td-agent2.sh | sh
        ;;
@@ -52,21 +52,25 @@ install_packages() {
         apt-get install -y curl
         curl -L http://toolbelt.treasuredata.com/sh/install-debian-wheezy-td-agent2.sh | sh
        ;;
+       CentOS)
+        curl -L http://toolbelt.treasuredata.com/sh/install-redhat-td-agent2.sh | sh
+        ;;
        *)
-        echo "No Distribution detected"
+        echo "OS Distribution Not supported"
         exit 1
 esac
-  # Fluentd Packages
-  apt-get install -y gem ruby-dev
+  # td-agent and collectd dependencies
+  if [[ "$os_dist" != "CentOS" ]]; then 
+    apt-get install -y gem ruby-dev
+    apt-get install -y collectd
+    apt-get update
+  else
+    yum install -y ruby-devel rubygems
+    yum install -y collectd collectd-rrdtool
+  fi
+  # td-agent plugins
   td-agent-gem install fluent-plugin-record-reformer
   td-agent-gem install fluent-plugin-secure-forward
-
-  # Collectd Packages
-  #if [ "$ubuntu_dist" != "xenial" ]; then 
-  #  yes | sudo add-apt-repository ppa:rullmann/collectd
-  #fi
-  apt-get install -y collectd
-  apt-get update
 }
 
 configure_agent(){
@@ -76,17 +80,22 @@ configure_agent(){
   sed -i -- "s/data03.ciscozeus.io/$INGESTION_DOMAIN/g" td-agent.conf
   cp td-agent.conf /etc/td-agent/td-agent.conf
   cp 10-rsyslog.conf /etc/rsyslog.d/10-rsyslog.conf
-  cp collectd.conf /etc/collectd/collectd.conf
+
+  os_dist="$(lsb_release --id | cut -f2)"
+  if [[ "$os_dist" == "CentOS" ]]; then
+    cp collectd.conf /etc/collectd.conf
+  else 
+    cp collectd.conf /etc/collectd/collectd.conf
+  fi
 }
 
 start_agent(){
+  service rsyslog restart 
   service td-agent restart
   service collectd restart
-  service rsyslog restart
 }
 
 install_packages
 download_configs
 configure_agent
 start_agent
-
