@@ -31,28 +31,30 @@ install_packages() {
     echo "lsb_release missing"
     exit 1
   fi
+  
   case "$ubuntu_dist" in 
         xenial)
 	curl -L http://toolbelt.treasuredata.com/sh/install-ubuntu-xenial-td-agent2.sh | sh
        ;;
        trusty)
 	curl -L http://toolbelt.treasuredata.com/sh/install-ubuntu-trusty-td-agent2.sh | sh
+        yes | sudo add-apt-repository ppa:rullmann/collectd
        ;;
        precise)
         curl -L http://toolbelt.treasuredata.com/sh/install-ubuntu-precise-td-agent2.sh | sh
+        yes | sudo add-apt-repository ppa:rullmann/collectd
        ;;
-       lucid)
-        curl -L http://toolbelt.treasuredata.com/sh/install-ubuntu-lucid-td-agent2.sh | sh
+       jessie)
+        apt-get install -y curl
+        curl -L https://toolbelt.treasuredata.com/sh/install-debian-jessie-td-agent2.sh | sh
        ;;
        wheezy)
+        apt-get install -y curl
         curl -L http://toolbelt.treasuredata.com/sh/install-debian-wheezy-td-agent2.sh | sh
        ;;
-       squeeze)
-        curl -L http://toolbelt.treasuredata.com/sh/install-debian-squeeze-td-agent2.sh | sh
-       ;;
        *)
-       echo "No Distribution detected"
-       exit 1
+        echo "No Distribution detected"
+        exit 1
 esac
   # Fluentd Packages
   apt-get install -y gem ruby-dev
@@ -60,9 +62,9 @@ esac
   td-agent-gem install fluent-plugin-secure-forward
 
   # Collectd Packages
-  if [ "$ubuntu_dist" != "xenial" ]; then 
-    yes | sudo add-apt-repository ppa:rullmann/collectd
-  fi
+  #if [ "$ubuntu_dist" != "xenial" ]; then 
+  #  yes | sudo add-apt-repository ppa:rullmann/collectd
+  #fi
   apt-get install -y collectd
   apt-get update
 }
