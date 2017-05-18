@@ -61,16 +61,16 @@ install_packages() {
 esac
   # td-agent and collectd dependencies
   if [[ "$os_dist" != "CentOS" ]]; then 
-    apt-get install -y gem ruby-dev
-    apt-get install -y collectd
-    apt-get update
+    sudo apt-get install -y gem ruby-dev
+    sudo apt-get install -y collectd
+    sudo apt-get update
   else
-    yum install -y ruby-devel rubygems
-    yum install -y collectd collectd-rrdtool
+    sudo yum install -y ruby-devel rubygems
+    sudo yum install -y collectd collectd-rrdtool
   fi
   # td-agent plugins
-  td-agent-gem install fluent-plugin-record-reformer
-  td-agent-gem install fluent-plugin-secure-forward
+  sudo td-agent-gem install fluent-plugin-record-reformer
+  sudo td-agent-gem install fluent-plugin-secure-forward
 }
 
 configure_agent(){
@@ -78,21 +78,21 @@ configure_agent(){
   sed -i -- "s/<YOUR USERNAME HERE>/$ZEUS_USERNAME/g" td-agent.conf
   sed -i -- "s/<YOUR TOKEN HERE>/$ZEUS_TOKEN/g" td-agent.conf
   sed -i -- "s/data03.ciscozeus.io/$INGESTION_DOMAIN/g" td-agent.conf
-  cp td-agent.conf /etc/td-agent/td-agent.conf
-  cp 10-rsyslog.conf /etc/rsyslog.d/10-rsyslog.conf
+  sudo cp td-agent.conf /etc/td-agent/td-agent.conf
+  sudo cp 10-rsyslog.conf /etc/rsyslog.d/10-rsyslog.conf
 
   os_dist="$(lsb_release --id | cut -f2)"
   if [[ "$os_dist" == "CentOS" ]]; then
-    cp collectd.conf /etc/collectd.conf
+    sudo cp collectd.conf /etc/collectd.conf
   else 
-    cp collectd.conf /etc/collectd/collectd.conf
+    sudo cp collectd.conf /etc/collectd/collectd.conf
   fi
 }
 
 start_agent(){
-  service rsyslog restart 
-  service td-agent restart
-  service collectd restart
+  sudo service rsyslog restart 
+  sudo service td-agent restart
+  sudo service collectd restart
 }
 
 install_packages
