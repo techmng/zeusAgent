@@ -59,7 +59,7 @@ install_packages() {
         echo "OS Distribution Not supported"
         exit 1
 esac
-  # td-agent and collectd dependencies
+  ## td-agent and collectd dependencies
   if [[ "$os_dist" != "CentOS" ]]; then 
     sudo apt-get install -y gem ruby-dev
     sudo apt-get install -y collectd
